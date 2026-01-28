@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style id="webmakerstyle">
+</style>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Iframe Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: transparent;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .message {
+            color: #333;
+            font-size: 20px;
+            line-height: 1.5;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        
+        .try-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .try-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: background 0.2s ease;
+            width: fit-content;
+        }
+        
+        .try-button:hover {
+            background: #3a5ce5;
+        }
+        
+        .try-button .chevron {
+            transition: transform 0.2s ease;
+        }
+        
+        .try-button.active .chevron {
+            transform: rotate(180deg);
+        }
+        
+        .code-container {
+            margin-top: 20px;
+            background: #1e1e1e;
+            border-radius: 4px;
+            border: 1px solid #333;
+            display: none;
+        }
+        
+        .code-container.active {
+            display: block;
+        }
+        
+        .code-header {
+            background: #2d2d2d;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .code-title {
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .copy-button {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+        
+        .copy-button:hover {
+            background: #3a5ce5;
+        }
+        
+        .copy-button.copied {
+            background: #10b981;
+        }
+        
+        .code-content {
+            margin: 0;
+            padding: 20px;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-y: auto;
+            max-height: 300px;
+            white-space: pre-wrap;
+        }
+        
+        .code-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .code-content::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+        
+        .code-content::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 3px;
+        }
+        
+        .code-content::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+        
+        .code-comment {
+            color: #6a9955;
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 2147483647;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-container {
+            background: white;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+        }
+        
+        .icon {
+            font-size: 60px;
+            color: #ff4757;
+            margin-bottom: 20px;
+        }
+        
+        .modal-text {
+            color: #333;
+            font-size: 20px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="message">
+            If this page appears within an iframe, a security warning will be displayed.
+        </div>
+        
+        <div class="try-container">
+            <button class="try-button" id="tryButton">
+                Try it now!
+                <i class="fas fa-chevron-down chevron"></i>
+            </button>
+        </div>
+        
+        <div class="code-container" id="codeContainer">
+            <div class="code-header">
+                <div class="code-title">HTML Code to Iframe This Page</div>
+                <button class="copy-button" id="copyButton">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+            <pre class="code-content" id="codeContent"><span class="code-comment">&lt;!-- Save this as test-iframe.html and open it --&gt;</span>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Test Iframe&lt;/title&gt;
+    &lt;style&gt;
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .iframe-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            border: 2px solid #4a6cf7;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+        }
+        .note {
+            background: #f0f5ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            color: #333;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Testing Iframe Detection&lt;/h1&gt;
+    &lt;p&gt;This page contains an iframe pointing to the anti-iframe demo.&lt;/p&gt;
+    
+    &lt;div class="iframe-container"&gt;
+        &lt;iframe src="https://anti-iframe.vercel.app" title="Anti-Iframe Demo"&gt;&lt;/iframe&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="note"&gt;
+        &lt;strong&gt;Note:&lt;/strong&gt; The iframe above should show a security warning modal 
+        because the target page blocks framing attempts.
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+        </div>
+    </div>
+    
+    <div id="iframeModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="icon"><i class="fas fa-ban"></i></div>
+            <div class="modal-text">iframe detected D:</div>
+        </div>
+    </div>
+
+    <script>
+        const meta1 = document.createElement('meta');
+        meta1.httpEquiv = "Content-Security-Policy";
+        meta1.content = "frame-ancestors 'none';";
+        document.head.appendChild(meta1);
+        
+        const meta2 = document.createElement('meta');
+        meta2.httpEquiv = "X-Frame-Options";
+        meta2.content = "DENY";
+        document.head.appendChild(meta2);
+
+        function checkFrame() {
+            try {
+                if (window.self !== window.top) {
+                    document.getElementById('iframeModal').style.display = 'flex';
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                document.getElementById('iframeModal').style.display = 'flex';
+                return true;
+            }
+        }
+
+        // Toggle code container functionality
+        const tryButton = document.getElementById('tryButton');
+        const codeContainer = document.getElementById('codeContainer');
+        const copyButton = document.getElementById('copyButton');
+        
+        tryButton.addEventListener('click', function() {
+            codeContainer.classList.toggle('active');
+            tryButton.classList.toggle('active');
+        });
+        
+        // Copy code functionality
+        copyButton.addEventListener('click', function() {
+            const codeContent = document.getElementById('codeContent').textContent;
+            navigator.clipboard.writeText(codeContent).then(() => {
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                copyButton.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyButton.innerHTML = originalText;
+                    copyButton.classList.remove('copied');
+                }, 2000);
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkFrame();
+            setInterval(checkFrame, 500);
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    setTimeout(checkFrame, 100);
+                }
+            });
+        });
+
+        window.addEventListener('load', function() {
+            try {
+                if (window.top !== window.self) {
+                    window.top.location = window.self.location;
+                }
+            } catch (e) {}
+        });
+
+        window.addEventListener('focus', checkFrame);
+        window.addEventListener('blur', checkFrame);
+    </script>
+</body>
+</html>
+</body>
+</html>
